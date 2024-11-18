@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/charmingruby/ogoth/config"
+	"github.com/charmingruby/ogoth/internal/shared/transport/rest"
+	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )
 
@@ -23,5 +25,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	slog.Info(fmt.Sprintf("CONFIGURATION: %+v", cfg))
+	router := chi.NewRouter()
+
+	server := rest.NewServer(cfg.ServerConfig.Port, router)
+
+	slog.Info(fmt.Sprintf("SERVER: Running on port %s", cfg.ServerConfig.Port))
+
+	if err := server.Run(); err != nil {
+		slog.Error(fmt.Sprintf("SERVER: %v", err))
+		os.Exit(1)
+	}
 }
