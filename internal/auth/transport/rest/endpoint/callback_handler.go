@@ -1,10 +1,12 @@
 package endpoint
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
 
+	"github.com/charmingruby/ogoth/internal/auth/core/model"
 	"github.com/charmingruby/ogoth/internal/auth/transport/rest/constant"
 )
 
@@ -33,13 +35,36 @@ func (e *Endpont) callbackHandler() http.HandlerFunc {
 			return
 		}
 
-		userData, err := io.ReadAll(res.Body)
+		userJSON, err := parseGoogleUserData(res)
 		if err != nil {
 			slog.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		w.Write(userData)
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(userJSON)
 	}
+}
+
+func parseGoogleUserData(res *http.Response) ([]byte, error) {
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := model.JSONToUserModel(body)
+	if err != nil {
+		return nil, err
+	}
+
+	slog.Info(fmt.Sprintf("user: %+v\n", user))
+
+	json, err := model.UserModelToJSON(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return json, nil
 }
