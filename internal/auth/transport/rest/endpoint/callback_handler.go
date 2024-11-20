@@ -42,6 +42,21 @@ func (e *Endpont) callbackHandler() http.HandlerFunc {
 			return
 		}
 
+		session, err := e.store.Get(r, "user-session")
+		if err != nil {
+			slog.Error(err.Error())
+			http.Error(w, "Unable to retrieve session", http.StatusInternalServerError)
+			return
+		}
+
+		session.Values["user"] = userJSON
+		err = session.Save(r, w)
+		if err != nil {
+			slog.Error(err.Error())
+			http.Error(w, "Unable to save session", http.StatusInternalServerError)
+			return
+		}
+
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(userJSON)

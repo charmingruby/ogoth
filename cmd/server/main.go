@@ -10,6 +10,7 @@ import (
 	"github.com/charmingruby/ogoth/internal/auth/transport/rest/client"
 	"github.com/charmingruby/ogoth/internal/health"
 	"github.com/charmingruby/ogoth/internal/shared/transport/rest"
+	"github.com/charmingruby/ogoth/internal/shared/transport/rest/session"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )
@@ -32,11 +33,13 @@ func main() {
 	server := rest.NewServer(cfg.ServerConfig.Port, router)
 	serverAddr := fmt.Sprintf("%s:%s", cfg.ServerConfig.Host, cfg.ServerConfig.Port)
 
+	sessionStore := session.New(cfg.ServerConfig.CookieSecretKey, cfg.Environment)
+
 	healthRestHandler := health.NewRestHandler(router)
 	healthRestHandler.Register()
 
 	googleOAuth2Client := client.NewGoogleOAuth2(serverAddr, cfg.GoogleConfig.ClientID, cfg.GoogleConfig.ClientSecretID)
-	authRestHandler := auth.NewRestHandler(router, *googleOAuth2Client)
+	authRestHandler := auth.NewRestHandler(router, *googleOAuth2Client, sessionStore)
 	authRestHandler.Register()
 
 	slog.Info(fmt.Sprintf("SERVER: Running on port %s", cfg.ServerConfig.Port))

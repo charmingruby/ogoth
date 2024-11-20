@@ -10,6 +10,7 @@ type environment struct {
 	ServerPort           string `env:"SERVER_PORT" envDefault:"3000"`
 	GoogleClientID       string `env:"GOOGLE_CLIENT_ID,required"`
 	GoogleClientSecretID string `env:"GOOGLE_CLIENT_SECRET_ID,required"`
+	CookieSecretKey      string `env:"COOKIE_SECRET_KEY,required"`
 }
 
 func New() (Config, error) {
@@ -21,8 +22,9 @@ func New() (Config, error) {
 	cfg := Config{
 		Environment: environment.Environment,
 		ServerConfig: serverConfig{
-			Host: environment.ServerHost,
-			Port: environment.ServerPort,
+			Host:            environment.ServerHost,
+			Port:            environment.ServerPort,
+			CookieSecretKey: environment.CookieSecretKey,
 		},
 		GoogleConfig: googleConfig{
 			ClientID:       environment.GoogleClientID,
@@ -40,8 +42,9 @@ type Config struct {
 }
 
 type serverConfig struct {
-	Host string
-	Port string
+	Host            string
+	Port            string
+	CookieSecretKey string
 }
 
 type googleConfig struct {
