@@ -6,6 +6,7 @@ import (
 
 type environment struct {
 	Environment          string `env:"ENVIRONMENT" envDefault:"dev"`
+	ServerHost           string `env:"SERVER_HOST" envDefault:"http://localhost"`
 	ServerPort           string `env:"SERVER_PORT" envDefault:"3000"`
 	GoogleClientID       string `env:"GOOGLE_CLIENT_ID,required"`
 	GoogleClientSecretID string `env:"GOOGLE_CLIENT_SECRET_ID,required"`
@@ -20,6 +21,7 @@ func New() (Config, error) {
 	cfg := Config{
 		Environment: environment.Environment,
 		ServerConfig: serverConfig{
+			Host: environment.ServerHost,
 			Port: environment.ServerPort,
 		},
 		GoogleConfig: googleConfig{
@@ -38,6 +40,7 @@ type Config struct {
 }
 
 type serverConfig struct {
+	Host string
 	Port string
 }
 
