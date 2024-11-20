@@ -4,12 +4,14 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+
+	"github.com/charmingruby/ogoth/internal/auth/transport/rest/constant"
 )
 
 func (e *Endpont) callbackHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := r.URL.Query()["state"][0]
-		if state != OAUTH_STATE {
+		if state != constant.OAUTH_STATE {
 			slog.Error("state not match")
 			http.Error(w, "state not match", http.StatusBadRequest)
 			return
@@ -24,7 +26,7 @@ func (e *Endpont) callbackHandler() http.HandlerFunc {
 			return
 		}
 
-		res, err := http.Get(USERINFO_URL + token.AccessToken)
+		res, err := http.Get(constant.USERINFO_URL + token.AccessToken)
 		if err != nil {
 			slog.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
